@@ -1,1 +1,1 @@
-# **Leazy-Bot**
+ LeazyBot
