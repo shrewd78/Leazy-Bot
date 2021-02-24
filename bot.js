@@ -5,6 +5,11 @@ const Database = require("plasma-db");
 const db = new Database("./database.json"); 
 const moment = require('moment');
 require("moment-duration-format");
+const path = require("path"); 
+const snekfetch = require("snekfetch"); 
+const ms = require("ms"); 
+const tags = require("common-tags");
+var Jimp = require("jimp"); 
 const fs = require('fs');
 const { readdirSync } = require('fs');
 const { join } = require('path');
@@ -85,49 +90,29 @@ client.login(ayarlar.token);
 
 //----------------------------------------------------KOMUTLAR----------------------------------------------------\\
 
-client.on('message', message => {
-  if(message.content.toLowerCase() === "sa") {
-    return message.reply("Aleyküm Selam Hoşgeldin! <a:turuncu:813292092284993537>");
-  }
-});
-
 client.on("message", message => {
-   if(message.content.toLowerCase() === "selam") {
-     return message.reply("Aleyküm Selam Hoşgeldin! <a:turuncu:813292092284993537>")
-   }
+  if(message.content.toLowerCase() === "Merhaba")
+   return message.channel.send("**Merhaba Hoşgeldin!**")
 });
-
-client.on("message", message => {
-   if(message.content.toLowerCase() === "selamun aleyküm") {
-     return message.reply("Aleyküm Selam Hoşgeldin! <a:turuncu:813292092284993537>")
-   }
-});
-
-client.on('message', message => {
-    if(message.content.toLowerCase() === "adam") {
-      message.react("😋")
-      return message.reply("Eyw snde");
-    }
-  });
 
 client.on("guildMemberAdd", member => {
-    const giris = member.guild.channels.cache.find(giris => giris.id === "812381770469212211");
+    const giris = member.guild.channels.cache.find(giris => giris.id === "813855738321436747");
 
     const embed = new Discord.MessageEmbed()
-    .setDescription(`${member} Sunucumuza Hoşgeldin Umarım Keyifli Vakit Geçirirsin 🥳`)
+    .setDescription(`${member} Sunucumuza Hoşgeldin Umarım Keyifli Vakit Geçirirsin <:sar:813423734068477952>`)
      giris.send(embed)
   });
 
 client.on("guildMemberRemove", member => {
-    const cikis = member.guild.channels.cache.find(cikis => cikis.id === "812381770469212211");
+    const cikis = member.guild.channels.cache.find(cikis => cikis.id === "813855738321436747");
     
     const embed2 = new Discord.MessageEmbed()
-    .setDescription(`${member} Sunucumuzdan Ayrıldı Acaba Neyini Sevmedide Ayrıldı..🤔`)
+    .setDescription(`${member} Sunucumuzdan Ayrıldı Acaba Neyini Sevmedide Ayrıldı..<:788066661495472188:813425084760326244>`)
      cikis.send(embed2)
    });
 
 client.on("guildMemberAdd", member => {
-    let rol = member.guild.roles.cache.find(role => role.id === "812382519537696828");
+    let rol = member.guild.roles.cache.find(role => role.id === "809783292492513306");
     member.roles.add(rol);
   });
 
@@ -286,6 +271,7 @@ client.on("guildCreate", async guild => {
 const guild = channel.guild.cache;
 let channelp = channel.parentID;
 
+  // İşlem Yapılan Yer
   channel.clone().then(z => {
     let kanal = z.guild.channels.find(c => c.name === z.name);
     kanal.setParent(
@@ -293,7 +279,58 @@ let channelp = channel.parentID;
       
     );
   });
-  }
+  } 
 })
 
 //----------------------------------------------------KANAL-KORUMA----------------------------------------------------\\
+
+//--------------------------------TAG-ALINCA-VERİLEN-ROL------------------------------------------------------\\
+
+client.on("userUpdate", async (oldUser, newUser) => {
+   if(oldUser.username !== newUser.username) {
+
+     let tag = "Desiré"; // Tagınız
+     let sunucu = "809780107891703888"; // Sunucu ID
+     let kanal = "809783388042821692"; // Kanal ID
+     let rol = "809783284174815242"; // Tag aldıktan sonra verilecek rol ID
+
+
+     if(newUser.username.includes(tag) && !client.guilds.cache 
+       .get(sunucu)
+       .members.cache.get(newUser.id)
+       .roles.cache.has(rol)) {
+
+
+        client.channels.cache
+        .get(kanal)
+        .send(`${newUser} **\`${tag}\`** tagını aldığı için <@&${rol}> rolünü kazandı!`)
+
+        client.guilds.cache
+        .get(sunucu)
+        .members.cache.get(newUser.id)
+        .roles.add(rol)
+
+       }
+
+    if(!newUser.username.includes(tag) && client.guilds.cache 
+       .get(sunucu)
+       .members.cache.get(newUser.id)
+       .roles.cache.has(rol)) {
+
+
+        client.channels.cache
+        .get(kanal)
+        .send(`${newUser} **\`${tag}\`** tagını isminden çıkardığı için <@&${rol}> rolünü kaybetti!`)
+        
+        client.guilds.cache
+        .get(sunucu)
+        .members.cache.get(newUser.id)
+        .roles.remove(rol)
+
+    }   
+  }
+});
+
+// codder: shréwd
+
+//--------------------------------TAG-ALINCA-VERİLEN-ROL------------------------------------------------------\\
