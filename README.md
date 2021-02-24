@@ -1,1 +1,1 @@
-# [Leazy Bot](https://discord.gg/axtZNEJb)
+# [Leazy Bot](https://discord.gg/rHFJT96q)
