@@ -1,7 +1,7 @@
 {
   "name": "shrewd",
   "version": "0.0.1",
-  "description": "Leazy Bot Sunar..",
+  "description": "Mrb",
   "main": "bot.js",
   "scripts": {
     "test": "node bot.js"
