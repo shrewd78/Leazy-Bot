@@ -5,12 +5,10 @@ const Database = require("plasma-db");
 const db = new Database("./database.json"); 
 const moment = require('moment');
 require("moment-duration-format");
-const path = require("path"); 
 const snekfetch = require("snekfetch"); 
 const ms = require("ms"); 
 const tags = require("common-tags");
 var Jimp = require("jimp"); 
-const fs = require('fs');
 const { readdirSync } = require('fs');
 const { join } = require('path');
 
@@ -22,8 +20,14 @@ const commandFiles = readdirSync(join(__dirname, "komutlar")).filter(file => fil
 
 for (const file of commandFiles) {
     const command = require(join(__dirname, "komutlar", `${file}`));
-    client.commands.set(command.name, command); 
-}
+      if(typeof command.name === "object"){
+       command.name.forEach(x => {
+         client.commands.set(x, command)
+       })
+      } else {
+        client.commands.set(command.name, command)
+      }
+    }
 
 client.on("error", console.error);
 
@@ -36,11 +40,10 @@ client.on('ready', () => {
     
     // Botun durumu
     const durumlar = [
-      "V12 Leazy Bot",
-      "!yardım | Yazarak Yardım Menüsünü Görebilirsiniz!",
-      "!moderasyon | Yazarak Moderasyon Komutlarını Görebilirsiniz!!!",
-      "!eğlence | Yazarak Eğlence Komutlarını Görebilirsiniz!!!",
-      
+      "!davet Diyerek Beni Sunucuna Davet Edebilirsin.",
+      "!yardım | !moderasyon | !eğlence | !kullanıcı",
+      "🤖 Developed by Shréwd",
+      "Güle Güle Kullanın..🤍",
       
       `${client.guilds.cache.size} Tane Sunucuya Hizmet Ediyorum!`,
       `${client.users.cache.size} Tane Kullanıcı!`,
@@ -49,7 +52,7 @@ client.on('ready', () => {
      let durum = durumlar[Math.floor(Math.random()*durumlar.length)]
      client.user.setActivity(durum)
 
-    }, 5000);
+    }, 5000); // 5 saniye
 
 });   
 
@@ -92,11 +95,11 @@ client.login(ayarlar.token);
 
 client.on("message", message => {
   if(message.content.toLowerCase() === "Merhaba")
-   return message.channel.send("**Merhaba Hoşgeldin!**")
+   return message.channel.send("Merhaba Hoşgeldin!")
 });
 
 client.on("guildMemberAdd", member => {
-    const giris = member.guild.channels.cache.find(giris => giris.id === "813855738321436747");
+    const giris = member.guild.channels.cache.find(giris => giris.id === "KANAL ID");
 
     const embed = new Discord.MessageEmbed()
     .setDescription(`${member} Sunucumuza Hoşgeldin Umarım Keyifli Vakit Geçirirsin <:sar:813423734068477952>`)
@@ -104,17 +107,18 @@ client.on("guildMemberAdd", member => {
   });
 
 client.on("guildMemberRemove", member => {
-    const cikis = member.guild.channels.cache.find(cikis => cikis.id === "813855738321436747");
+    const cikis = member.guild.channels.cache.find(cikis => cikis.id === "KANAL ID");
     
     const embed2 = new Discord.MessageEmbed()
     .setDescription(`${member} Sunucumuzdan Ayrıldı Acaba Neyini Sevmedide Ayrıldı..<:788066661495472188:813425084760326244>`)
      cikis.send(embed2)
    });
-
+   
 client.on("guildMemberAdd", member => {
-    let rol = member.guild.roles.cache.find(role => role.id === "809783292492513306");
-    member.roles.add(rol);
-  });
+   let rol = member.guild.roles.cache.find(role => role.id === "814147299244376084")
+   member.roles.add(rol)
+
+})
 
 client.on("guildCreate", async guild => {
      
@@ -130,7 +134,7 @@ client.on("guildCreate", async guild => {
        .addField('Sunucu Sahibi', guild.owner)
        guild.owner.send(embed1)
 
-       const channel = client.channels.cache.find(c => c.id === "813167847492681739")
+       const channel = client.channels.cache.find(c => c.id === "814186310104907776")
        channel.send(embed2)
   });
 
@@ -148,64 +152,56 @@ client.on("guildCreate", async guild => {
       .addField('Sunucu Sahibi', guild.owner)
       guild.owner.send(embed3)
 
-      const channel = client.channels.cache.find(c => c.id === "813167847492681739")
+      const channel = client.channels.cache.find(c => c.id === "814186310104907776")
       channel.send(embed4)
  });
 
   //----------------------------------------------------MESSAGE-LOG----------------------------------------------------\\
 
-  client.on("messageDelete", function (message) { // 1 parametre alıyor
+  client.on("messageDelete", function (message) { // tek parametre
 
-   let embed = new Discord.MessageEmbed()
-    .setAuthor(message.author.tag, message.author.avatarURL({ dynamic: true}))
-    .setDescription(`
-    
-      **Mesajı Silen Kişi:**
-      > <@${message.author.id}>
-      **Silinen Mesaj**
-      > ${message.content}`)
+   if(message.author.bot) return;
 
-      .setTimestamp()
-      .setColor("#ff000")
-      .setFooter("Kullanıcı: " + message.author.username + " | Sunucu " + message.guild.name);
+    let embed = new Discord.MessageEmbed()
+     .setAuthor(message.author.tag, message.author.avatarURL({ dynamic: true }))
+     .addField("Mesajı Silen Kişi", message.author.id)
+     .addField("Silinen Mesaj", message.content)
+     .setColor("#ff000")
+     .setTimestamp()
+     .setFooter("Kullanıcı: " + message.author.username + " | Sunucu: " + message.guild.name)
 
-      client.channels.cache
-      .get(ayarlar.kanal)
-      .send(embed)
+     client.channels.cache
+     .get(ayarlar.kanal)
+     .send(embed)
+
   });
 
-  client.on("messageUpdate", function (oldMsg, newMsg) { // 2 parametre alıyor
-    
+  client.on("messageUpdate", function (oldMsg, newMsg) { // çift parametre
+
     if(newMsg.author.bot) return;
 
     let embed = new Discord.MessageEmbed()
      .setAuthor(newMsg.author.tag, newMsg.author.avatarURL({ dynamic: true }))
-     .setDescription(`
+     .addField("Mesaj Sahibi", newMsg.author.id)
+     .addField("Eski Mesaj", oldMsg.content)
+     .addField("Mesaj Linki", `[Tıkla](${newMsg.url})`)
+     .addField("Yeni Mesaj", newMsg.content)
+     .setColor("#ff000")
+     .setTimestamp()
+     .setFooter("Kullanıcı: " + newMsg.author.username + " | Sunucu: " + newMsg.guild.name)
      
-      **Mesaj Sahibi**
-      > <@${newMsg.author.id}>
-      **Mesaj Linki**
-      > [Tıkla](${newMsg.url})
-      **Eski Mesaj**
-      > ${oldMsg.content}
-      **Yeni Mesaj**
-      > ${newMsg.content}`)
+     client.channels.cache
+     .get(ayarlar.kanal)
+     .send(embed)
 
-      .setTimestamp()
-      .setColor("#ff000")
-      .setFooter("Kullanıcı: " + newMsg.author.username + " | Sunucu: " + newMsg.guild.name)
-
-      client.channels.cache
-       .get(ayarlar.kanal)
-       .send(embed)
   });
-
+  
   //----------------------------------------------------MESSAGE-LOG-SON----------------------------------------------------\\
 
  //----------------------------------------------------BOTU-SESE-SOKMA----------------------------------------------------\\
 
   client.on("ready", async function () {
-    const voiceChannel = "809783390760075277";
+    const voiceChannel = ayarlar.botses;
      client.channels.cache
       .get(voiceChannel)
       .join()
@@ -284,53 +280,81 @@ let channelp = channel.parentID;
 
 //----------------------------------------------------KANAL-KORUMA----------------------------------------------------\\
 
-//--------------------------------TAG-ALINCA-VERİLEN-ROL------------------------------------------------------\\
+//------------------------------------------------------REKLAM-ENGEL------------------------------------------------------\\
 
-client.on("userUpdate", async (oldUser, newUser) => {
-   if(oldUser.username !== newUser.username) {
+client.on("message", message => { // Shréwd
+  if(!db.var(`reklamcik_${message.guild.id}`)) return;
 
-     let tag = "Desiré"; // Tagınız
-     let sunucu = "809780107891703888"; // Sunucu ID
-     let kanal = "809783388042821692"; // Kanal ID
-     let rol = "809783284174815242"; // Tag aldıktan sonra verilecek rol ID
+   const reklamcık = [
+    ".com",
+    ".net",
+    ".xyz",
+    ".tk",
+    ".pw",
+    ".io",
+    ".me",
+    ".gg",
+    "www.",
+    "https",
+    "http",
+    ".gl",
+    ".org",
+    ".com.tr",
+    ".biz",
+    "net",
+    ".rf.gd",
+    ".az",
+    ".party",
+    "discord.gg"
+   ];
 
+   if(reklamcık.some(kelime => message.content.toLowerCase().includes(kelime))) {
+    try {
 
-     if(newUser.username.includes(tag) && !client.guilds.cache 
-       .get(sunucu)
-       .members.cache.get(newUser.id)
-       .roles.cache.has(rol)) {
+      if(!message.member.hasPermission("ADMINISTRATOR")) { // bu yetkiye sahip olanları etkilemiyor
+       message.delete();
 
+        return message.channel.send(new Discord.MessageEmbed()
+         .setDescription(`${message.author} Bu sunucuda reklam yapmak yasaktır!`)
+         .setColor("RED")
+         .setAuthor(message.member.displayName, message.author.avatarURL())
+         .setTimestamp())
+         .then(x => x.delete({ timeout: 5000 }));  
 
-        client.channels.cache
-        .get(kanal)
-        .send(`${newUser} **\`${tag}\`** tagını aldığı için <@&${rol}> rolünü kazandı!`)
+     }
+   } catch (err) {
+           console.log(err);
+        }
+   }
+}); // Shréwd
 
-        client.guilds.cache
-        .get(sunucu)
-        .members.cache.get(newUser.id)
-        .roles.add(rol)
+//------------------------------------------------------REKLAM-ENGEL------------------------------------------------------\\
 
-       }
+//------------------------------------------------------KÜFÜR-ENGEL------------------------------------------------------\\
 
-    if(!newUser.username.includes(tag) && client.guilds.cache 
-       .get(sunucu)
-       .members.cache.get(newUser.id)
-       .roles.cache.has(rol)) {
+client.on("message", message => { // Shréwd
+  if(!db.var(`kufurcum_${message.guild.id}`)) return;
+  
+   const kufurcuk = ["orospu","amık","Oç","0ç","yavşak","y3a3rram","a.m.k","A.M.K","or1spu","anan1 s1k1m","orospu evladı","ananı sikim","anneni sikim","anneni sikeyim","ananı sikeyim","ağzına sıçim","ağzına sıçayım","ağzına s","ambiti","amını","amını s","amcık","amcik","amcığını","amciğini","amcığını","amcığını s","amck","amckskm","amcuk","amına","amına k","amınakoyim","amına s","amunu","amını","amın oğlu","amın o","amınoğlu","amnskm","anaskm","ananskm","amkafa","amk çocuğu","amk oç","piç","amk ç","amcıklar","amq","amındaki","amnskm","ananı","ananın am","ananızın","aneni","aneni s","annen","anen","ananın dölü","sperm","döl","anasının am","anası orospu","orospu","orosp,","kahpe","kahbe","kahße","ayklarmalrmsikerim","ananı avradını","avrat","avradını","avradını s","babanı","babanı s","babanın amk","annenin amk","ananın amk","bacını s","babası pezevenk","pezevenk","pezeveng","kaşar","bitch","yarrak","cibiliyetini","bokbok","bombok","dallama","götünü s","ebenin","ebeni","ecdadını","gavat","gavad","ebeni","fahişe","sürtük","fuck","gotten","götten","göt","gtveren","gttn","gtnde","gtn","hassiktir","hasiktir","hsktr","haysiyetsiz","ibne","ibine","ipne","kaltık","kancık","kevaşe","kevase","kodumun","orosbu","fucker","penis","porno","sikiş","s1kerim","puşt","sakso","skcm","siktir","sktr","skecem","skeym","slaleni","sokam","sokuş","sokarım","sokarm","sokaym","şerefsiz","şrfsz","sürtük","taşak","taşşak","tasak","tipini s","yarram","yararmorospunun","yarramın başı","yarramınbaşı","yarraminbasi","yrrk","zikeyim","zikik","zkym","amk","mk","oç"];
+   
+   if(kufurcuk.some(kelimeğ => message.content.toLowerCase().includes(kelimeğ))) {
+    try {
 
+       if(!message.member.hasPermission("ADMINISTRATOR")) { // bu yetkiye sahip olanları etkilemiyor
+        message.delete();
 
-        client.channels.cache
-        .get(kanal)
-        .send(`${newUser} **\`${tag}\`** tagını isminden çıkardığı için <@&${rol}> rolünü kaybetti!`)
-        
-        client.guilds.cache
-        .get(sunucu)
-        .members.cache.get(newUser.id)
-        .roles.remove(rol)
+         return message.channel.send(new Discord.MessageEmbed()
+          .setDescription(`${message.author} Bu sunucuda küfür etmek yasaktır!`)
+          .setColor("RED")
+          .setAuthor(message.member.displayName, message.author.avatarURL())
+          .setTimestamp())
+          .then(x => x.delete({ timeout: 5000}))
 
-    }   
-  }
-});
-
-// codder: shréwd
-
-//--------------------------------TAG-ALINCA-VERİLEN-ROL------------------------------------------------------\\
+        }
+      } catch (err) {
+              console.log(err);
+           }
+      }
+   }); // Shréwd
+   
+   //------------------------------------------------------KÜFÜR-ENGEL------------------------------------------------------\\
