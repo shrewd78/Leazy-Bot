@@ -1,7 +1,8 @@
-Leazy Bot 
-!moderasyon\n
-!guard\n
-!eğlence\n
+**Leazy Bot** 
+
+!moderasyon
+!guard
+!eğlence
 ______________________
 
 Ayarlamalı Küfür Ve Engel Sistemi.
