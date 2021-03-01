@@ -1,7 +1,7 @@
 Leazy Bot 
-!moderasyon
-!guard
-!eğlence
+!moderasyon\n
+!guard\n
+!eğlence\n
 ______________________
 
 Ayarlamalı Küfür Ve Engel Sistemi.
